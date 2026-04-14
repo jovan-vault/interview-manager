@@ -1,9 +1,5 @@
 import { Resend } from 'resend'
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error('RESEND_API_KEY is not configured')
-}
-
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, '&amp;')
@@ -12,8 +8,6 @@ function escapeHtml(text: string): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;')
 }
-
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function sendReminderEmail({
   to,
@@ -102,6 +96,11 @@ ${notes ? `📝 备注: ${notes}\n` : ''}
 来自面试时间管理器
   `.trim()
 
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY is not configured')
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY)
   const { data, error } = await resend.emails.send({
     from: '面试提醒 <onboarding@resend.dev>',
     to: [to],
