@@ -3,9 +3,10 @@ import { prisma } from '@/lib/prisma'
 import { sendReminderEmail } from '@/lib/resend'
 
 export async function GET(request: Request) {
-  // 验证 CRON_SECRET
-  const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  // Vercel Cron 发出的请求 User-Agent 是 vercel-cron/1.0
+  // 只有来自 Vercel Cron 的请求才能访问此 endpoint
+  const userAgent = request.headers.get('user-agent')
+  if (!userAgent?.includes('vercel-cron')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
