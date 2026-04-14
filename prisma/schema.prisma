@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Interview {
+  id              String   @id @default(uuid())
+  date            DateTime @db.Date
+  startTime       String
+  endTime         String
+  company         String
+  position        String
+  positionUrl     String?
+  interviewType   InterviewType @default(VIDEO)
+  meetingUrl      String?
+  notes           String?
+  shareToken      String   @unique @default(uuid())
+  reminderMinutes Int      @default(60)
+  reminderSent    Boolean  @default(false)
+  reminderEnabled Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Settings {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum InterviewType {
+  VIDEO
+  ONSITE
+}

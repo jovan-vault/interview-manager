@@ -1,0 +1,49 @@
+import InterviewCard from '@/components/InterviewCard'
+
+async function getInterviews() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/interviews`, { cache: 'no-store' })
+  if (!res.ok) return []
+  return res.json()
+}
+
+export default async function Home() {
+  const interviews = await getInterviews()
+
+  const grouped = interviews.reduce((acc: Record<string, typeof interviews>, item: any) => {
+    const dateKey = item.date.split('T')[0]
+    if (!acc[dateKey]) acc[dateKey] = []
+    acc[dateKey].push(item)
+    return acc
+  }, {})
+
+  const sortedDates = Object.keys(grouped).sort()
+
+  return (
+    <main className="max-w-2xl mx-auto p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">📅 面试日程</h1>
+        <a href="/interviews/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+          + 添加面试
+        </a>
+      </div>
+
+      {sortedDates.length === 0 ? (
+        <div className="text-center py-12 text-gray-500">
+          <p className="text-lg">暂无面试安排</p>
+          <p className="mt-2">点击上方按钮添加你的第一个面试</p>
+        </div>
+      ) : (
+        sortedDates.map(date => (
+          <div key={date} className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-700 mb-3">
+              {new Date(date).toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' })}
+            </h2>
+            {grouped[date].map((interview: any) => (
+              <InterviewCard key={interview.id} interview={interview} />
+            ))}
+          </div>
+        ))
+      )}
+    </main>
+  )
+}
