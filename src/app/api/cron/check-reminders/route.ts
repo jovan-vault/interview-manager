@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendReminderEmail } from '@/lib/resend'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function GET(request: Request) {
   // Vercel Cron 发出的请求 User-Agent 是 vercel-cron/1.0
   // 只有来自 Vercel Cron 的请求才能访问此 endpoint
