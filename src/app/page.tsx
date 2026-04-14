@@ -1,9 +1,10 @@
 import InterviewCard from '@/components/InterviewCard'
+import { prisma } from '@/lib/prisma'
 
 async function getInterviews() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/interviews`, { cache: 'no-store' })
-  if (!res.ok) return []
-  return res.json()
+  return prisma.interview.findMany({
+    orderBy: { date: 'asc' },
+  })
 }
 
 export default async function Home() {
