@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendReminderEmail } from '@/lib/resend'
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
   // 验证 CRON_SECRET
   const authHeader = request.headers.get('authorization')
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
