@@ -36,6 +36,12 @@ next-env.d.ts
 # Playwright MCP
 .playwright-mcp/
 
+# Worktrees
+.worktrees/
+
 # OS
 .DS_Store
 Thumbs.db
+
+.vercel
+.env*.local
