@@ -8,9 +8,9 @@ export const metadata = {
 
 export default function GreetingPage() {
   return (
-    <main className="max-w-5xl mx-auto p-6">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+    <main className="max-w-5xl mx-auto p-6" style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
+      <div className="bg-[#181818] rounded-lg p-6">
+        <h1 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
           <span className="text-2xl">💬</span>
           AI 招呼语生成
         </h1>

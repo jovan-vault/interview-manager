@@ -14,22 +14,22 @@ export default function GreetingForm() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-[#b3b3b3] mb-2">
           📄 简历内容
         </label>
         <textarea
-          className="w-full rounded-xl border border-gray-200 p-4 text-sm bg-gray-50 h-40 resize-none"
+          className="w-full rounded-lg border border-[#4d4d4d] p-4 text-sm bg-[#1f1f1f] text-white h-40 resize-none"
           placeholder="粘贴你的简历内容..."
           value={resume}
           onChange={(e) => setResume(e.target.value)}
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-[#b3b3b3] mb-2">
           💼 职位 JD
         </label>
         <textarea
-          className="w-full rounded-xl border border-gray-200 p-4 text-sm bg-gray-50 h-40 resize-none"
+          className="w-full rounded-lg border border-[#4d4d4d] p-4 text-sm bg-[#1f1f1f] text-white h-40 resize-none"
           placeholder="粘贴目标岗位的职位描述..."
           value={jd}
           onChange={(e) => setJd(e.target.value)}
@@ -37,7 +37,7 @@ export default function GreetingForm() {
       </div>
       <button
         onClick={handleGenerate}
-        className="w-full bg-blue-500 text-white rounded-xl py-3 font-medium hover:bg-blue-600 transition-colors"
+        className="w-full bg-[#1ed760] text-black rounded-full py-3 font-medium hover:bg-[#1ed760]/90 transition-colors"
       >
         ✨ 生成招呼语
       </button>
