@@ -26,9 +26,12 @@ export default function HomeClient({ interviews }: { interviews: Interview[] }) 
   const searchParams = useSearchParams()
   const selectedDate = searchParams.get('scroll')
 
+  // Read scroll param directly from window.location to handle pushState changes
   useEffect(() => {
-    if (selectedDate) {
-      const el = document.getElementById(`date-${selectedDate}`)
+    const params = new URLSearchParams(window.location.search)
+    const date = params.get('scroll')
+    if (date) {
+      const el = document.getElementById(`date-${date}`)
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' })
         el.classList.add('date-group-highlighted')
@@ -36,7 +39,7 @@ export default function HomeClient({ interviews }: { interviews: Interview[] }) 
         return () => clearTimeout(timer)
       }
     }
-  }, [selectedDate])
+  }, [])
 
   const grouped = interviews.reduce((acc: Record<string, Interview[]>, item: Interview) => {
     const dateKey = new Date(item.date).toISOString().split('T')[0]
@@ -189,7 +192,9 @@ export default function HomeClient({ interviews }: { interviews: Interview[] }) 
               ))}
             </div>
           </div>
-          <CalendarSidebar interviews={interviews} />
+          <div className="calendar-sidebar-wrapper">
+            <CalendarSidebar interviews={interviews} />
+          </div>
         </div>
       )}
     </div>

@@ -294,6 +294,8 @@ body {
   margin-left: var(--sidebar-width);
   background: var(--bg-primary);
   min-height: 100vh;
+  /* Allow calendar sidebar to extend to viewport edge */
+  overflow: visible;
 }
 
 @media (max-width: 768px) {
@@ -1809,16 +1811,11 @@ body {
 /* ===== Calendar Sidebar ===== */
 .calendar-sidebar {
   width: var(--calendar-width, 280px);
-  flex-shrink: 0;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 18px;
   box-shadow: var(--shadow-sm);
-  position: sticky;
-  top: 24px;
-  max-height: calc(100vh - 48px);
-  overflow-y: auto;
 }
 
 /* 导航 */
@@ -2023,4 +2020,16 @@ body {
   0% { outline-color: var(--accent-primary); }
   70% { outline-color: var(--accent-primary); }
   100% { outline-color: transparent; }
+}
+
+/* Calendar sidebar wrapper - extends to viewport right edge */
+.calendar-sidebar-wrapper {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: var(--calendar-width, 280px);
+  height: 100vh;
+  z-index: 40;
+  padding-top: 24px;
+  padding-right: 24px;
 }
