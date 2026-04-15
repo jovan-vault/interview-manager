@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { getInterviewsData } from './home-data'
 import HomeClient from './home-client'
 

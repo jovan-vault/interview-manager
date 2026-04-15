@@ -6,7 +6,23 @@ import InterviewTimeline from '@/components/InterviewTimeline'
 import CalendarSidebar from '@/components/CalendarSidebar'
 import { formatDateHeader, getTodayDate } from '@/lib/date-utils'
 
-export default function HomeClient({ interviews }: { interviews: any[] }) {
+interface Interview {
+  id: string
+  date: string
+  startTime: string
+  endTime: string
+  company: string
+  position: string
+  interviewType: 'VIDEO' | 'ONSITE'
+  meetingUrl?: string | null
+  positionUrl?: string | null
+  notes?: string | null
+  reminderMinutes?: number
+  reminderSent?: boolean
+  reminderEnabled?: boolean
+}
+
+export default function HomeClient({ interviews }: { interviews: Interview[] }) {
   const searchParams = useSearchParams()
   const selectedDate = searchParams.get('scroll')
 
@@ -22,8 +38,8 @@ export default function HomeClient({ interviews }: { interviews: any[] }) {
     }
   }, [selectedDate])
 
-  const grouped = interviews.reduce((acc: Record<string, typeof interviews>, item: any) => {
-    const dateKey = new Date(item.date).toISOString().split('T')[0]
+  const grouped = interviews.reduce((acc: Record<string, Interview[]>, item: Interview) => {
+    const dateKey = item.date.toISOString().split('T')[0]
     if (!acc[dateKey]) acc[dateKey] = []
     acc[dateKey].push(item)
     return acc
@@ -31,9 +47,9 @@ export default function HomeClient({ interviews }: { interviews: any[] }) {
 
   const sortedDates = Object.keys(grouped).sort()
   const today = getTodayDate()
-  const upcomingCount = interviews.filter((i: any) => i.date >= today).length
-  const videoCount = interviews.filter((i: any) => i.interviewType === 'VIDEO').length
-  const onsiteCount = interviews.filter((i: any) => i.interviewType === 'ONSITE').length
+  const upcomingCount = interviews.filter((i: Interview) => i.date >= today).length
+  const videoCount = interviews.filter((i: Interview) => i.interviewType === 'VIDEO').length
+  const onsiteCount = interviews.filter((i: Interview) => i.interviewType === 'ONSITE').length
 
   return (
     <div className="page-container">
@@ -161,7 +177,7 @@ export default function HomeClient({ interviews }: { interviews: any[] }) {
                     <span className="date-count">{grouped[date].length} 场</span>
                   </div>
                   <div className="timeline-cards">
-                    {grouped[date].map((interview: any, index: number) => (
+                    {grouped[date].map((interview: Interview, index: number) => (
                       <InterviewTimeline
                         key={interview.id}
                         interview={interview}
