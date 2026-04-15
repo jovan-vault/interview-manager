@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import InterviewTimeline from '@/components/InterviewTimeline'
 import { prisma } from '@/lib/prisma'
 
@@ -23,9 +24,17 @@ export default async function Home() {
     <main className="max-w-2xl mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">📅 面试日程</h1>
-        <a href="/interviews/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-          + 添加面试
-        </a>
+        <div className="flex gap-3">
+          <Link href="/greeting" className="text-gray-600 hover:text-gray-800 px-3 py-2 text-sm flex items-center gap-1">
+            💬 招呼语
+          </Link>
+          <Link href="/questions" className="text-gray-600 hover:text-gray-800 px-3 py-2 text-sm flex items-center gap-1">
+            📝 问题
+          </Link>
+          <a href="/interviews/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            + 添加面试
+          </a>
+        </div>
       </div>
 
       {sortedDates.length === 0 ? (
