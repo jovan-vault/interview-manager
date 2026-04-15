@@ -1,214 +1,117 @@
-# 前端重构设计方案
+# 前端样式重构设计方案
 
-**日期**: 2026-04-15
-**状态**: 已批准
+## 概述
 
-## 1. 设计风格
+将面试管理器前端从当前浅色 Tailwind 主题重构为 Spotify 风格的深色沉浸式主题。
 
-**现代简约风格** — 垂直时间线布局
+## 设计风格
 
-### 视觉特点
-- 大面积留白，极细边框卡片（border border-gray-100）
-- 垂直时间线布局：左侧圆点（w-3 h-3 rounded-full）+ 连接线（w-0.5 bg-gray-200）
-- 柔和灰色调，背景使用 bg-gray-50
-- 卡片圆角使用 rounded-xl 或 rounded-2xl
-- 无太多留白，紧凑但不拥挤
+### 色彩系统
 
-### 颜色系统
-- 背景色: bg-gray-50
-- 卡片色: bg-white
-- 主色调: blue-500
-- 成功色: green-500
-- 警告色: yellow-400 / yellow-100
-- 文字色: gray-800 (标题), gray-600 (正文), gray-400 (辅助)
+| 用途 | 颜色 | 说明 |
+|------|------|------|
+| 背景 | `#121212` | 最深层页面背景 |
+| 卡片/容器 | `#181818` | 页面主要容器、卡片 |
+| 交互面 | `#1f1f1f` | 按钮、输入框背景 |
+| 主强调色 | `#1ed760` | Spotify Green - CTA、激活状态 |
+| 主文字 | `#ffffff` | 白色文字 |
+| 次要文字 | `#b3b3b3` | 未激活/次要信息 |
+| 边框 | `#4d4d4d` | 按钮边框 |
 
-### 字体
-- 使用 Inter 字体（已有）
-- 标题: font-bold text-gray-800
-- 正文: text-sm text-gray-600
-- 辅助: text-xs text-gray-400
+### 语义色
+- **Negative Red** (`#f3727f`): 错误/删除
+- **Warning Orange** (`#ffa42b`): 警告/待处理
+- **Announcement Blue** (`#539df5`): 信息/视频面试
 
----
+### 圆角系统
+- 药丸按钮: `500px-9999px`
+- 圆形控件: `50%` (播放按钮、头像)
+- 卡片: `6px-8px`
 
-## 2. 首页重构 — 面试列表时间线
-
-### 布局结构
-- 最大宽度 max-w-2xl（保持现有）
-- 内边距 p-4
-- 顶部导航保留：标题 + 设置按钮 + 添加面试按钮
-- 日期分组使用垂直时间线展示
-
-### 时间线样式
-```jsx
-<div class="flex gap-4">
-  {/* 左侧时间线 */}
-  <div class="flex flex-col items-center">
-    <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-    <div class="w-0.5 h-full bg-gray-200"></div>
-  </div>
-  {/* 右侧内容 */}
-  <div class="flex-1 pb-6">
-    <div class="text-sm text-gray-500">10:00</div>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-      {/* 面试卡片内容 */}
-    </div>
-  </div>
-</div>
-```
-
-### 面试卡片样式
-- 背景: bg-white
-- 圆角: rounded-xl
-- 阴影: shadow-sm
-- 边框: border border-gray-100
-- 内边距: p-4
-- 状态标签: rounded-full 小药丸形状
-- 视频/现场: bg-blue-100/bg-green-100 + text-blue-700/text-green-700
+### 阴影
+- 卡片悬浮: `rgba(0,0,0,0.3) 0px 8px 8px`
+- 对话框/菜单: `rgba(0,0,0,0.5) 0px 8px 24px`
 
 ---
 
-## 3. 新页面1 — 招呼语生成 `/greeting`
+## 页面改造清单
 
-### 路由
-- `/greeting` — 招呼语生成页面
+### 1. 全局样式 (globals.css)
+- 设置 CSS 变量 `--bg-primary`, `--bg-card`, `--bg-interactive`, `--text-primary`, `--text-secondary`, `--accent-green`
+- 设置全局 `body` 背景色 `#121212`
+- 保持 Tailwind 兼容，添加深色变量
 
-### 页面布局
-采用**表单式**布局，左右分栏：
+### 2. 根布局 (layout.tsx)
+- 更新 `body` class 为深色背景
+- 可选：添加 Spotify 风格字体 (CircularSp 家族)
 
-```
-+--------------------------------------------------+
-|  💬 AI 招呼语生成                                 |
-+--------------------------------------------------+
-|  左侧输入区 (50%)     |    右侧预览区 (50%)       |
-|                       |                          |
-|  [📄 简历内容]        |    [生成结果预览]         |
-|  [textarea]           |    [虚线边框占位]         |
-|                       |                          |
-|  [💼 职位 JD]         |                          |
-|  [textarea]           |                          |
-|                       |                          |
-|  [✨ 生成招呼语]       |                          |
-+--------------------------------------------------+
-```
+### 3. 主页 (page.tsx)
+- 页面背景: `#121212`
+- 标题: 白色 `#ffffff`
+- 导航链接: `#b3b3b3` 未激活 / `#ffffff` 激活
+- 添加面试按钮: Spotify Green `#1ed760` 药丸形
+- 日期分组标题: `#b3b3b3`
 
-### 组件样式
-- 页面容器: max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border
-- 输入标签: text-sm font-medium text-gray-700 mb-2
-- 输入框: rounded-xl border border-gray-200 p-4 text-sm bg-gray-50
-- 按钮: bg-blue-500 text-white rounded-xl py-3 font-medium
-- 预览区: bg-gradient-to-br from-gray-50 to-white border-2 border-dashed border-gray-200 rounded-xl
+### 4. 面试时间线组件 (InterviewTimeline.tsx)
+- 卡片背景: `#181818`
+- 卡片圆角: `8px`
+- 卡片阴影: `rgba(0,0,0,0.3) 0px 8px 8px`
+- 时间线圆点: 视频=`#539df5` / 现场=`#1ed760`
+- 公司名称: `#ffffff` bold
+- 职位: `#b3b3b3`
+- 面试类型标签: 对应语义色背景
+- 文字链接: 激活时 `#1ed760`
 
-### 交互
-- 输入简历和JD后点击"生成招呼语"按钮
-- 右侧预览区显示生成的招呼语结果（目前仅样式，无实际功能）
+### 5. 面试表单 (InterviewForm.tsx)
+- 表单容器: `#181818` 背景卡片
+- 输入框: `#1f1f1f` 背景 + inset border
+- 标签文字: `#b3b3b3`
+- 提交按钮: `#1ed760` 药丸形，白色文字
+- 取消按钮: `#1f1f1f` 药丸形
+- 提醒提示框: `#252525` 背景
 
----
+### 6. 面试详情页 (interviews/[id]/page.tsx)
+- 返回链接: `#b3b3b3` → hover `#1ed760`
+- 主卡片: `#181818` 背景
+- 标签: 使用语义色
+- 编辑按钮: `#1f1f1f` 药丸形
 
-## 4. 新页面2 — 问题记录 `/questions`
+### 7. 招呼语页面 (greeting/page.tsx)
+- 页面背景: `#121212`
+- 主容器: `#181818` 卡片
+- 标题: 白色
 
-### 路由
-- `/questions` — 问题记录页面
+### 8. 问题页面 (questions/page.tsx)
+- 同招呼语布局
+- 状态徽章使用语义色:
+  - mastered: `#1ed760` (绿色)
+  - pending: `#ffa42b` (橙色)
+  - not-reviewed: `#539df5` (蓝色)
 
-### 页面布局
-采用**列表编辑式**布局，左右分栏：
-
-```
-+--------------------------------------------------+
-|  📝 面试问题记录                    [+ 添加问题] |
-+--------------------------------------------------+
-|  左侧问题列表 (45%)      |    右侧详情分析 (55%) |
-|                           |                       |
-|  [共 6 个问题]             |    [问题标题]          |
-|                           |    [问题描述]          |
-|  [问题1 - 已掌握]          |                       |
-|  [问题2 - 待完善]          |    [AI 分析建议]       |
-|  [问题3 - 未复习]          |    [✓] 建议1          |
-|                           |    [✓] 建议2          |
-|                           |    [⚠] 建议3          |
-|                           |                       |
-|                           |    [🧠 重新分析]       |
-+--------------------------------------------------+
-```
-
-### 左侧问题列表样式
-- 列表项: bg-gray-50 rounded-xl p-4 border border-gray-100
-- 选中项: bg-blue-50 border-2 border-blue-200
-- 状态标签: rounded-full 小药丸
-  - 已掌握: bg-green-100 text-green-700
-  - 待完善: bg-yellow-100 text-yellow-700
-  - 未复习: bg-gray-100 text-gray-600
-
-### 右侧详情分析样式
-- 容器: bg-gray-50 rounded-xl p-5 border border-gray-100
-- 问题标题区: 头像圆形 + 公司/岗位信息
-- 分析建议: 白色背景 rounded-lg border
-- 按钮: bg-blue-500 text-white rounded-lg py-2
-
-### 交互
-- 点击左侧问题列表项，右侧显示详情和AI分析建议
-- "添加问题"按钮打开添加表单（目前仅样式）
-- "智能分析"按钮触发分析（目前仅样式）
+### 9. 设置页面 (settings/page.tsx)
+- 返回链接: 同面试详情
+- 主卡片: `#181818`
+- 保存按钮: `#1ed760` 药丸形
+- 提示框: `#252525`
 
 ---
 
-## 5. 导航更新
+## 实施顺序
 
-### 新增导航入口
-在首页顶部导航添加两个新入口：
-
-```tsx
-<Link href="/greeting" className="text-gray-600 hover:text-gray-800 px-3 py-2 text-sm">
-  💬 招呼语
-</Link>
-<Link href="/questions" className="text-gray-600 hover:text-gray-800 px-3 py-2 text-sm">
-  📝 问题记录
-</Link>
-```
+1. 更新 `globals.css` - 全局变量和 body 样式
+2. 更新 `layout.tsx` - 根布局深色化
+3. 更新 `InterviewTimeline.tsx` - 时间线组件
+4. 更新 `InterviewForm.tsx` - 表单组件
+5. 更新主页和其他页面
+6. 更新 `ShareButton.tsx` 和 `DeleteButton.tsx` 等小组件
 
 ---
 
-## 6. 技术实现
+## 成功标准
 
-### 文件结构
-```
-src/
-├── app/
-│   ├── greeting/
-│   │   └── page.tsx        # 招呼语生成页面
-│   ├── questions/
-│   │   └── page.tsx        # 问题记录页面
-│   ├── page.tsx            # 首页（面试列表）
-│   └── layout.tsx           # 布局
-├── components/
-│   ├── InterviewTimeline.tsx    # 时间线式面试卡片
-│   ├── GreetingForm.tsx         # 招呼语表单
-│   ├── GreetingPreview.tsx      # 招呼语预览
-│   ├── QuestionList.tsx         # 问题列表
-│   └── QuestionDetail.tsx       # 问题详情+分析
-```
-
-### 组件依赖
-- 现有 InterviewCard 可作为参考，样式迁移到 InterviewTimeline
-- 所有新组件均为纯展示组件（目前无需实际功能）
-
----
-
-## 7. 实施计划
-
-由于是样式重构，实施顺序：
-
-1. **首页重构** — 将现有面试列表改为时间线布局
-2. **创建招呼语页面** — /greeting 页面及组件
-3. **创建问题记录页面** — /questions 页面及组件
-4. **更新导航** — 添加新页面入口
-
----
-
-## 8. 验收标准
-
-- [ ] 首页面试列表使用时间线垂直布局
-- [ ] /greeting 页面使用表单式左右分栏布局
-- [ ] /questions 页面使用列表编辑式左右分栏布局
-- [ ] 所有页面无过多留白，紧凑但不拥挤
-- [ ] 风格统一：圆角、阴影、边框、颜色系统一致
-- [ ] 导航可正常跳转新页面（仅有样式）
+- 所有页面背景为深色 `#121212`
+- 按钮统一使用药丸形状
+- 绿色 `#1ed760` 仅用于主要 CTA 和激活状态
+- 次要文字使用 `#b3b3b3`
+- 卡片有轻微阴影和圆角
+- 无浅色背景残留
