@@ -1,97 +1,139 @@
-# 前端重构实施计划
+# Frontend Redesign Implementation Plan - Spotify Dark Theme
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 重构面试管理应用前端样式：首页面试列表改时间线布局，新增招呼语生成和问题记录两个独立页面
+**Goal:** Transform all frontend pages from light Tailwind theme to Spotify-inspired dark theme (#121212 background, #1ed760 accent, pill-shaped buttons)
 
-**Architecture:** 采用现代简约风格，垂直时间线布局。首页保持 max-w-2xl 宽度，新页面使用 max-w-5xl。组件化设计，新页面为纯展示（无实际功能）。
+**Architecture:** Global CSS variables for colors, component-level Tailwind class updates. No structural changes - only visual styling.
 
-**Tech Stack:** Next.js 14 App Router, Tailwind CSS, TypeScript
+**Tech Stack:** Next.js 14, Tailwind CSS, existing globals.css
 
 ---
 
-## 文件结构
+## Color Tokens Reference
 
-```
-src/
-├── app/
-│   ├── greeting/
-│   │   └── page.tsx              # [新建] 招呼语生成页面
-│   ├── questions/
-│   │   └── page.tsx              # [新建] 问题记录页面
-│   ├── page.tsx                  # [修改] 首页（面试列表时间线化）
-│   └── layout.tsx                # [修改] 导航栏（添加新入口）
-├── components/
-│   ├── InterviewTimeline.tsx     # [新建] 时间线式面试卡片组件
-│   ├── GreetingForm.tsx          # [新建] 招呼语表单组件
-│   ├── GreetingPreview.tsx       # [新建] 招呼语预览组件
-│   ├── QuestionList.tsx          # [新建] 问题列表组件
-│   └── QuestionDetail.tsx        # [新建] 问题详情+分析组件
+```css
+--bg-primary: #121212;      /* Page background */
+--bg-card: #181818;        /* Card/container background */
+--bg-interactive: #1f1f1f;  /* Button/input background */
+--bg-elevated: #252525;     /* Elevated surfaces */
+--text-primary: #ffffff;    /* Primary text */
+--text-secondary: #b3b3b3;  /* Secondary/muted text */
+--accent-green: #1ed760;     /* Spotify Green - CTA only */
+--accent-red: #f3727f;      /* Negative/error */
+--accent-orange: #ffa42b;   /* Warning/pending */
+--accent-blue: #539df5;     /* Info/video */
+--border: #4d4d4d;          /* Borders */
 ```
 
 ---
 
-## Task 1: 创建 InterviewTimeline 组件
+## Task 1: Global Styles
 
 **Files:**
-- Create: `src/components/InterviewTimeline.tsx`
+- Modify: `src/app/globals.css`
 
-**Reference:** 现有 `src/components/InterviewCard.tsx` 样式参考
+- [ ] **Step 1: Update globals.css with Spotify dark theme**
 
-- [ ] **Step 1: 创建 InterviewTimeline.tsx 组件文件**
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #121212;
+  --bg-card: #181818;
+  --bg-interactive: #1f1f1f;
+  --bg-elevated: #252525;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --accent-green: #1ed760;
+  --accent-red: #f3727f;
+  --accent-orange: #ffa42b;
+  --accent-blue: #539df5;
+  --border: #4d4d4d;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add src/app/globals.css
+git commit -m "feat: add Spotify dark theme CSS variables"
+```
+
+---
+
+## Task 2: Root Layout
+
+**Files:**
+- Modify: `src/app/layout.tsx`
+
+- [ ] **Step 1: Update body class**
 
 ```tsx
-// src/components/InterviewTimeline.tsx
-interface Interview {
-  id: string
-  date: string
-  startTime: string
-  endTime: string
-  company: string
-  position: string
-  interviewType: string
-  meetingUrl?: string | null
-}
+<body className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+```
 
-interface Props {
-  interview: Interview
-  isLast?: boolean
-}
+- [ ] **Step 2: Commit**
 
+```bash
+git add src/app/layout.tsx
+git commit -m "feat: apply dark theme to root layout"
+```
+
+---
+
+## Task 3: InterviewTimeline Component
+
+**Files:**
+- Modify: `src/components/InterviewTimeline.tsx`
+
+- [ ] **Step 1: Rewrite with dark theme classes**
+
+```tsx
 export default function InterviewTimeline({ interview, isLast = false }: Props) {
   const isVideo = interview.interviewType === 'VIDEO'
 
   return (
     <div className="flex gap-4">
-      {/* 左侧时间线 */}
+      {/* Timeline left */}
       <div className="flex flex-col items-center">
-        <div className={`w-3 h-3 rounded-full ${isVideo ? 'bg-blue-500' : 'bg-green-500'}`}></div>
-        {!isLast && <div className="w-0.5 flex-1 bg-gray-200 mt-1"></div>}
+        <div className={`w-3 h-3 rounded-full ${isVideo ? 'bg-[#539df5]' : 'bg-[#1ed760]'}`}></div>
+        {!isLast && <div className="w-0.5 flex-1 bg-[#4d4d4d] mt-1"></div>}
       </div>
-      {/* 右侧内容 */}
+      {/* Content right */}
       <div className="flex-1 pb-6">
-        <div className="text-sm text-gray-500 font-medium">{interview.startTime}</div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mt-1">
+        <div className="text-sm text-[#b3b3b3] font-medium">{interview.startTime}</div>
+        <div className="bg-[#181818] rounded-lg p-4 mt-1 shadow-lg">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="font-semibold text-gray-800">{interview.company}</h3>
-              <p className="text-gray-500 text-sm">{interview.position}</p>
+              <h3 className="font-semibold text-white">{interview.company}</h3>
+              <p className="text-[#b3b3b3] text-sm">{interview.position}</p>
             </div>
-            <span className={`text-xs px-2 py-1 rounded-full ${isVideo ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+            <span className={`text-xs px-3 py-1 rounded-full ${
+              isVideo ? 'bg-[#539df5]/20 text-[#539df5]' : 'bg-[#1ed760]/20 text-[#1ed760]'
+            }`}>
               {isVideo ? '视频' : '现场'}
             </span>
           </div>
-          <div className="mt-3 text-sm text-gray-500">
+          <div className="mt-3 text-sm text-[#b3b3b3]">
             <p>🕐 {interview.startTime} - {interview.endTime}</p>
             {isVideo && interview.meetingUrl && (
-              <a href={interview.meetingUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline mt-1 block">
+              <a href={interview.meetingUrl} target="_blank" rel="noopener noreferrer" 
+                 className="text-[#1ed760] hover:underline mt-1 block">
                 🔗 加入视频会议
               </a>
             )}
           </div>
           <div className="mt-3 flex gap-3">
-            <a href={`/interviews/${interview.id}`} className="text-sm text-blue-600 hover:underline">查看详情</a>
-            <a href={`/interviews/${interview.id}/edit`} className="text-sm text-gray-500 hover:text-gray-700">编辑</a>
+            <a href={`/interviews/${interview.id}`} className="text-sm text-[#1ed760] hover:underline">查看详情</a>
+            <a href={`/interviews/${interview.id}/edit`} className="text-sm text-[#b3b3b3] hover:text-white">编辑</a>
           </div>
         </div>
       </div>
@@ -100,561 +142,335 @@ export default function InterviewTimeline({ interview, isLast = false }: Props) 
 }
 ```
 
-- [ ] **Step 2: 提交**
+- [ ] **Step 2: Commit**
 
 ```bash
 git add src/components/InterviewTimeline.tsx
-git commit -m "feat: add InterviewTimeline component with timeline layout
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+git commit -m "feat: apply dark theme to InterviewTimeline"
 ```
 
 ---
 
-## Task 2: 重构首页 — 面试列表时间线化
+## Task 4: InterviewForm Component
 
 **Files:**
-- Modify: `src/app/page.tsx:1-59`
+- Modify: `src/components/InterviewForm.tsx`
 
-- [ ] **Step 1: 阅读现有 page.tsx**
+- [ ] **Step 1: Add wrapper and update form styling**
 
-确认当前代码结构，特别是 `getInterviews` 和数据分组逻辑。
-
-- [ ] **Step 2: 替换 InterviewCard 导入为 InterviewTimeline**
-
+Wrap the existing form content with:
 ```tsx
-import InterviewTimeline from '@/components/InterviewTimeline'
-// 移除: import InterviewCard from '@/components/InterviewCard'
+<div className="bg-[#181818] rounded-lg p-6">
 ```
 
-- [ ] **Step 3: 修改面试卡片渲染部分**
-
-将原来的：
+Update input class:
 ```tsx
-{grouped[date].map((interview: any) => (
-  <InterviewCard key={interview.id} interview={interview} />
-))}
+className="mt-1 block w-full rounded-lg bg-[#1f1f1f] border border-[#4d4d4d] px-3 py-2 text-white focus:border-[#1ed760] focus:outline-none"
 ```
 
-替换为：
+Update label class:
 ```tsx
-{grouped[date].map((interview: any, index: number) => (
-  <InterviewTimeline 
-    key={interview.id} 
-    interview={interview}
-    isLast={index === grouped[date].length - 1}
-  />
-))}
+className="block text-sm font-medium text-[#b3b3b3] mb-1"
 ```
 
-- [ ] **Step 4: 运行开发服务器验证**
+Update submit button:
+```tsx
+className="flex-1 bg-[#1ed760] text-black py-3 px-6 rounded-full font-semibold hover:opacity-90 disabled:opacity-50"
+```
+
+Update cancel button:
+```tsx
+className="flex-1 bg-[#1f1f1f] text-white py-3 px-6 rounded-full font-semibold hover:bg-[#252525]"
+```
+
+Update reminder box:
+```tsx
+className="bg-[#252525] border border-[#4d4d4d] rounded p-3 text-sm"
+```
+
+- [ ] **Step 2: Commit**
 
 ```bash
-npm run dev
+git add src/components/InterviewForm.tsx
+git commit -m "feat: apply dark theme to InterviewForm"
 ```
 
-访问 http://localhost:3000 确认面试列表显示正常，时间线布局生效。
+---
 
-- [ ] **Step 5: 提交**
+## Task 5: ShareButton & DeleteButton
+
+**Files:**
+- Modify: `src/components/ShareButton.tsx`
+- Modify: `src/components/DeleteButton.tsx`
+
+- [ ] **Step 1: Update ShareButton**
+
+```tsx
+<button onClick={handleCopy}
+  className="bg-[#1f1f1f] text-white py-2 px-5 rounded-full hover:bg-[#252525] transition flex items-center gap-2 border border-[#4d4d4d]">
+  {copied ? '✓ 已复制' : '🔗 复制分享链接'}
+</button>
+```
+
+- [ ] **Step 2: Update DeleteButton**
+
+```tsx
+<button onClick={handleDelete} disabled={loading}
+  className="bg-[#f3727f] text-white py-2 px-5 rounded-full hover:opacity-90 disabled:opacity-50">
+  {loading ? '删除中...' : '🗑️ 删除'}
+</button>
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add src/components/ShareButton.tsx src/components/DeleteButton.tsx
+git commit -m "feat: apply dark pill style to action buttons"
+```
+
+---
+
+## Task 6: Home Page
+
+**Files:**
+- Modify: `src/app/page.tsx`
+
+- [ ] **Step 1: Update main container and navigation**
+
+```tsx
+<main className="max-w-2xl mx-auto p-4" style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
+  <div className="flex justify-between items-center mb-6">
+    <h1 className="text-2xl font-bold text-white">📅 面试日程</h1>
+    <div className="flex gap-3">
+      <Link href="/greeting" 
+        className="text-[#b3b3b3] hover:text-white px-3 py-2 text-sm flex items-center gap-1 rounded-full hover:bg-[#1f1f1f]">
+        💬 招呼语
+      </Link>
+      <Link href="/questions" 
+        className="text-[#b3b3b3] hover:text-white px-3 py-2 text-sm flex items-center gap-1 rounded-full hover:bg-[#1f1f1f]">
+        📝 问题
+      </Link>
+      <a href="/interviews/new" 
+        className="bg-[#1ed760] text-black px-5 py-2 rounded-full hover:opacity-90 transition font-semibold text-sm">
+        + 添加面试
+      </a>
+    </div>
+  </div>
+```
+
+Date header: `text-lg font-semibold text-[#b3b3b3] mb-3`
+
+Empty state: `text-center py-12 text-[#b3b3b3]`
+
+- [ ] **Step 2: Commit**
 
 ```bash
 git add src/app/page.tsx
-git commit -m "refactor: convert interview list to timeline layout
-
-- Replace InterviewCard with InterviewTimeline component
-- Add vertical timeline with dot indicators
-- Style cards with rounded-xl, shadow-sm, border
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+git commit -m "feat: apply dark theme to home page"
 ```
 
 ---
 
-## Task 3: 创建招呼语表单组件 GreetingForm
+## Task 7: Interview Detail Page
 
 **Files:**
-- Create: `src/components/GreetingForm.tsx`
+- Modify: `src/app/interviews/[id]/page.tsx`
 
-- [ ] **Step 1: 创建 GreetingForm.tsx**
+- [ ] **Step 1: Update styling**
 
 ```tsx
-'use client'
+<main className="max-w-2xl mx-auto p-4" style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
+  <div className="mb-6">
+    <Link href="/" className="text-[#b3b3b3] hover:text-[#1ed760]">← 返回列表</Link>
+  </div>
 
-import { useState } from 'react'
-
-export default function GreetingForm() {
-  const [resume, setResume] = useState('')
-  const [jd, setJd] = useState('')
-
-  const handleGenerate = () => {
-    // 目前仅样式，无实际功能
-    alert('仅样式展示，点击无实际效果')
-  }
-
-  return (
-    <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          📄 简历内容
-        </label>
-        <textarea
-          className="w-full rounded-xl border border-gray-200 p-4 text-sm bg-gray-50 h-40 resize-none"
-          placeholder="粘贴你的简历内容..."
-          value={resume}
-          onChange={(e) => setResume(e.target.value)}
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          💼 职位 JD
-        </label>
-        <textarea
-          className="w-full rounded-xl border border-gray-200 p-4 text-sm bg-gray-50 h-40 resize-none"
-          placeholder="粘贴目标岗位的职位描述..."
-          value={jd}
-          onChange={(e) => setJd(e.target.value)}
-        />
-      </div>
-      <button
-        onClick={handleGenerate}
-        className="w-full bg-blue-500 text-white rounded-xl py-3 font-medium hover:bg-blue-600 transition-colors"
-      >
-        ✨ 生成招呼语
-      </button>
-    </div>
-  )
-}
+  <div className="bg-[#181818] rounded-lg p-6">
+    <h1 className="text-2xl font-bold text-white">{interview.company}</h1>
+    <p className="text-[#b3b3b3] text-lg">{interview.position}</p>
+    {/* ... */}
+  </div>
+</main>
 ```
 
-- [ ] **Step 2: 提交**
+- [ ] **Step 2: Commit**
 
 ```bash
-git add src/components/GreetingForm.tsx
-git commit -m "feat: add GreetingForm component
-
-- Resume and JD textareas
-- Generate button (placeholder functionality)
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+git add src/app/interviews/[id]/page.tsx
+git commit -m "feat: apply dark theme to interview detail"
 ```
 
 ---
 
-## Task 4: 创建招呼语预览组件 GreetingPreview
+## Task 8: Interview Edit & New Pages
 
 **Files:**
-- Create: `src/components/GreetingPreview.tsx`
+- Modify: `src/app/interviews/[id]/edit/page.tsx`
+- Modify: `src/app/interviews/new/page.tsx`
 
-- [ ] **Step 1: 创建 GreetingPreview.tsx**
+- [ ] **Step 1: Update both pages**
 
+Add wrapper with dark background:
 ```tsx
-export default function GreetingPreview() {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        📝 生成结果预览
-      </label>
-      <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border-2 border-dashed border-gray-200 p-6 h-[340px] flex items-center justify-center">
-        <div className="text-center text-gray-400">
-          <div className="text-4xl mb-2">📋</div>
-          <p>生成结果将显示在这里</p>
-        </div>
-      </div>
-    </div>
-  )
-}
+<main className="max-w-2xl mx-auto p-4" style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
 ```
 
-- [ ] **Step 2: 提交**
+Title: `className="text-2xl font-bold text-white mb-6"`
+
+- [ ] **Step 2: Commit**
 
 ```bash
-git add src/components/GreetingPreview.tsx
-git commit -m "feat: add GreetingPreview component
-
-- Dashed border placeholder for generated greeting
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+git add src/app/interviews/[id]/edit/page.tsx src/app/interviews/new/page.tsx
+git commit -m "feat: apply dark theme to interview form pages"
 ```
 
 ---
 
-## Task 5: 创建招呼语生成页面 /greeting
+## Task 9: Greeting Components
 
 **Files:**
-- Create: `src/app/greeting/page.tsx`
+- Modify: `src/app/greeting/page.tsx`
+- Modify: `src/components/GreetingForm.tsx`
+- Modify: `src/components/GreetingPreview.tsx`
 
-- [ ] **Step 1: 创建招呼语页面目录和文件**
+- [ ] **Step 1: Update greeting/page.tsx**
 
 ```tsx
-import GreetingForm from '@/components/GreetingForm'
-import GreetingPreview from '@/components/GreetingPreview'
-
-export const metadata = {
-  title: '招呼语生成 - 面试管理器',
-  description: '根据简历和JD生成个性化招呼语',
-}
-
-export default function GreetingPage() {
-  return (
-    <main className="max-w-5xl mx-auto p-6">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-          <span className="text-2xl">💬</span>
-          AI 招呼语生成
-        </h1>
-        <div className="grid md:grid-cols-2 gap-6">
-          <GreetingForm />
-          <GreetingPreview />
-        </div>
-      </div>
-    </main>
-  )
-}
+<main className="max-w-5xl mx-auto p-6" style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
+  <div className="bg-[#181818] rounded-lg p-6">
+    <h1 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
 ```
 
-- [ ] **Step 2: 运行开发服务器验证**
+- [ ] **Step 2: Update GreetingForm**
+
+- Textarea: `bg-[#1f1f1f] border-[#4d4d4d] text-white rounded-lg`
+- Label: `text-[#b3b3b3]`
+- Button: `bg-[#1ed760] text-black rounded-full w-full`
+
+- [ ] **Step 3: Update GreetingPreview**
+
+- Container: `bg-[#1f1f1f] border border-[#4d4d4d] rounded-lg`
+- Placeholder text: `text-[#b3b3b3]`
+
+- [ ] **Step 4: Commit**
 
 ```bash
-npm run dev
-```
-
-访问 http://localhost:3000/greeting 确认页面正常显示。
-
-- [ ] **Step 3: 提交**
-
-```bash
-git add src/app/greeting/page.tsx
-git commit -m "feat: add /greeting page for greeting generation
-
-- Form-style layout with resume/JD input and preview
-- Links from components: GreetingForm, GreetingPreview
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+git add src/app/greeting/page.tsx src/components/GreetingForm.tsx src/components/GreetingPreview.tsx
+git commit -m "feat: apply dark theme to greeting page"
 ```
 
 ---
 
-## Task 6: 创建问题列表组件 QuestionList
+## Task 10: Questions Components
 
 **Files:**
-- Create: `src/components/QuestionList.tsx`
+- Modify: `src/app/questions/page.tsx`
+- Modify: `src/components/QuestionList.tsx`
+- Modify: `src/components/QuestionDetail.tsx`
 
-- [ ] **Step 1: 创建 QuestionList.tsx**
+- [ ] **Step 1: Update questions/page.tsx**
 
 ```tsx
-'use client'
+<main className="max-w-5xl mx-auto p-6" style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
+  <div className="bg-[#181818] rounded-lg p-6">
+    <h1 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+```
 
-interface Question {
-  id: string
-  content: string
-  company: string
-  position: string
-  status: 'mastered' | 'pending' | 'not-reviewed'
-}
+- [ ] **Step 2: Update QuestionList**
 
-interface Props {
-  questions: Question[]
-  selectedId?: string
-  onSelect: (id: string) => void
-}
+- Item selected: `bg-[#1ed760]/10 border-[#1ed760]`
+- Item normal: `bg-[#1f1f1f] border-[#4d4d4d] hover:border-[#b3b3b3]`
+- Text: `text-white` / `text-[#b3b3b3]`
+- Add button: `text-[#1ed760] hover:underline`
 
+Status badges:
+```tsx
 const statusConfig = {
-  mastered: { label: '已掌握', bg: 'bg-green-100', text: 'text-green-700' },
-  pending: { label: '待完善', bg: 'bg-yellow-100', text: 'text-yellow-700' },
-  'not-reviewed': { label: '未复习', bg: 'bg-gray-100', text: 'text-gray-600' },
-}
-
-export default function QuestionList({ questions, selectedId, onSelect }: Props) {
-  return (
-    <div className="space-y-3">
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-sm font-medium text-gray-500">共 {questions.length} 个问题</span>
-        <button className="text-blue-500 text-sm hover:underline">+ 添加问题</button>
-      </div>
-
-      {questions.map((q) => {
-        const status = statusConfig[q.status]
-        const isSelected = q.id === selectedId
-
-        return (
-          <div
-            key={q.id}
-            onClick={() => onSelect(q.id)}
-            className={`rounded-xl p-4 border cursor-pointer transition-all ${
-              isSelected
-                ? 'bg-blue-50 border-2 border-blue-200'
-                : 'bg-gray-50 border border-gray-100 hover:border-gray-200'
-            }`}
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="font-medium text-gray-800">{q.content}</div>
-                <div className="text-xs text-gray-500 mt-1">{q.company} · {q.position}</div>
-              </div>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${status.bg} ${status.text}`}>
-                {status.label}
-              </span>
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
+  mastered: { label: '已掌握', bg: 'bg-[#1ed760]/20', text: 'text-[#1ed760]' },
+  pending: { label: '待完善', bg: 'bg-[#ffa42b]/20', text: 'text-[#ffa42b]' },
+  'not-reviewed': { label: '未复习', bg: 'bg-[#539df5]/20', text: 'text-[#539df5]' },
 }
 ```
 
-- [ ] **Step 2: 提交**
+- [ ] **Step 3: Update QuestionDetail**
+
+- Container: `bg-[#1f1f1f] border border-[#4d4d4d]`
+- Avatar: `bg-[#1ed760] text-black`
+- Section labels: `text-[#b3b3b3] uppercase tracking-wider`
+- AI suggestion box: `bg-[#252525] border border-[#4d4d4d]`
+- Buttons: `bg-[#1ed760] text-black rounded-full`
+
+- [ ] **Step 4: Commit**
 
 ```bash
-git add src/components/QuestionList.tsx
-git commit -m "feat: add QuestionList component
-
-- Question list with status badges (mastered/pending/not-reviewed)
-- Selected state styling
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+git add src/app/questions/page.tsx src/components/QuestionList.tsx src/components/QuestionDetail.tsx
+git commit -m "feat: apply dark theme to questions page"
 ```
 
 ---
 
-## Task 7: 创建问题详情组件 QuestionDetail
+## Task 11: Settings Page
 
 **Files:**
-- Create: `src/components/QuestionDetail.tsx`
+- Modify: `src/app/settings/page.tsx`
 
-- [ ] **Step 1: 创建 QuestionDetail.tsx**
+- [ ] **Step 1: Update styling**
 
 ```tsx
-interface Question {
-  id: string
-  content: string
-  company: string
-  position: string
-  status: 'mastered' | 'pending' | 'not-reviewed'
-}
+<main className="max-w-xl mx-auto p-4" style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
+  <div className="mb-6">
+    <Link href="/" className="text-[#b3b3b3] hover:text-[#1ed760]">← 返回列表</Link>
+  </div>
 
-interface Props {
-  question: Question | null
-}
+  <div className="bg-[#181818] rounded-lg p-6">
+    <h1 className="text-2xl font-bold text-white mb-2">⚙️ 设置</h1>
+    <p className="text-[#b3b3b3] mb-6">设置你的提醒接收邮箱</p>
+    {/* form inputs with dark styling */}
+    <button className="w-full bg-[#1ed760] text-black py-3 px-4 rounded-full font-semibold hover:opacity-90">
+      保存设置
+    </button>
+  </div>
 
-export default function QuestionDetail({ question }: Props) {
-  if (!question) {
-    return (
-      <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 h-full flex items-center justify-center">
-        <div className="text-center text-gray-400">
-          <div className="text-4xl mb-2">📝</div>
-          <p>选择一个问题查看详情</p>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
-          {question.content.charAt(0)}
-        </div>
-        <div>
-          <div className="font-semibold text-gray-800">{question.content}</div>
-          <div className="text-xs text-gray-500">{question.company} · {question.position}</div>
-        </div>
-      </div>
-
-      <div className="mb-4">
-        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">问题描述</label>
-        <p className="text-sm text-gray-700 mt-1">请详细介绍一个你最成功的项目，包括你承担的角色、遇到的挑战以及如何解决的。</p>
-      </div>
-
-      <div className="mb-4">
-        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">AI 分析建议</label>
-        <div className="mt-2 p-4 bg-white rounded-lg border border-gray-100">
-          <div className="text-sm text-gray-700 space-y-2">
-            <p><span className="text-green-600">✓</span> 建议使用STAR法则回答</p>
-            <p><span className="text-green-600">✓</span> 突出技术难点和创新点</p>
-            <p><span className="text-yellow-600">⚠</span> 需要补充具体的性能优化数据</p>
-          </div>
-        </div>
-      </div>
-
-      <button className="w-full bg-blue-500 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-600 transition-colors">
-        🧠 重新分析
-      </button>
-    </div>
-  )
-}
+  <div className="mt-6 bg-[#252525] border border-[#4d4d4d] rounded-lg p-4">
 ```
 
-- [ ] **Step 2: 提交**
+- [ ] **Step 2: Commit**
 
 ```bash
-git add src/components/QuestionDetail.tsx
-git commit -m "feat: add QuestionDetail component
-
-- Question detail view with AI analysis placeholder
-- Re-analyze button (placeholder)
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+git add src/app/settings/page.tsx
+git commit -m "feat: apply dark theme to settings page"
 ```
 
 ---
 
-## Task 8: 创建问题记录页面 /questions
+## Final Verification
 
-**Files:**
-- Create: `src/app/questions/page.tsx`
-
-- [ ] **Step 1: 创建问题记录页面**
-
-```tsx
-'use client'
-
-import { useState } from 'react'
-import QuestionList from '@/components/QuestionList'
-import QuestionDetail from '@/components/QuestionDetail'
-
-interface Question {
-  id: string
-  content: string
-  company: string
-  position: string
-  status: 'mastered' | 'pending' | 'not-reviewed'
-}
-
-// 模拟数据（实际从API获取）
-const mockQuestions: Question[] = [
-  { id: '1', content: '自我介绍', company: '字节跳动', position: '前端工程师', status: 'mastered' },
-  { id: '2', content: '项目经历详解', company: '阿里巴巴', position: '全栈工程师', status: 'pending' },
-  { id: '3', content: '浏览器原理', company: '美团', position: '前端工程师', status: 'not-reviewed' },
-  { id: '4', content: 'HTTP缓存机制', company: '字节跳动', position: '前端工程师', status: 'not-reviewed' },
-  { id: '5', content: '性能优化策略', company: '腾讯', position: '前端工程师', status: 'pending' },
-  { id: '6', content: '设计模式', company: '字节跳动', position: '前端工程师', status: 'pending' },
-]
-
-export default function QuestionsPage() {
-  const [selectedId, setSelectedId] = useState<string>('1')
-  const selectedQuestion = mockQuestions.find((q) => q.id === selectedId) || null
-
-  return (
-    <main className="max-w-5xl mx-auto p-6">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-          <span className="text-2xl">📝</span>
-          面试问题记录
-        </h1>
-        <div className="grid md:grid-cols-2 gap-6">
-          <QuestionList
-            questions={mockQuestions}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-          />
-          <QuestionDetail question={selectedQuestion} />
-        </div>
-      </div>
-    </main>
-  )
-}
-```
-
-- [ ] **Step 2: 运行开发服务器验证**
-
-访问 http://localhost:3000/questions 确认页面正常，点击问题列表项可切换右侧详情。
-
-- [ ] **Step 3: 提交**
-
-```bash
-git add src/app/questions/page.tsx
-git commit -m "feat: add /questions page for interview question tracking
-
-- List-edit layout with question list and detail panel
-- Mock data for demonstration
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
-```
+- [ ] Run `npm run build` to verify no errors
+- [ ] Run `npm run lint` to check linting
+- [ ] Start dev server and visually verify all pages:
+  1. Home page (/) - dark background, green CTA
+  2. Add interview (/interviews/new) - dark form
+  3. Interview detail (/interviews/[id]) - dark card
+  4. Greeting (/greeting) - dark layout
+  5. Questions (/questions) - dark with semantic badges
+  6. Settings (/settings) - dark form
 
 ---
 
-## Task 9: 更新导航 — 添加新页面入口
+## Spec Coverage Check
 
-**Files:**
-- Modify: `src/app/page.tsx:27-37`（导航部分）
-
-- [ ] **Step 1: 在首页导航添加招呼语和问题记录入口**
-
-在"设置"按钮后添加：
-
-```tsx
-<Link href="/greeting" className="text-gray-600 hover:text-gray-800 px-3 py-2 text-sm flex items-center gap-1">
-  💬 招呼语
-</Link>
-<Link href="/questions" className="text-gray-600 hover:text-gray-800 px-3 py-2 text-sm flex items-center gap-1">
-  📝 问题
-</Link>
-```
-
-- [ ] **Step 2: 验证所有导航链接**
-
-```bash
-npm run dev
-```
-
-访问 http://localhost:3000 确认导航显示正常，点击可跳转各页面。
-
-- [ ] **Step 3: 提交**
-
-```bash
-git add src/app/page.tsx
-git commit -m "feat: add navigation links to new pages
-
-- /greeting for greeting generation
-- /questions for question tracking
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
-```
-
----
-
-## Task 10: 最终验证
-
-**Files:**
-- Check: 所有相关文件
-
-- [ ] **Step 1: 运行构建检查**
-
-```bash
-npm run build
-```
-
-确认无 TypeScript 错误和构建失败。
-
-- [ ] **Step 2: 检查所有页面**
-
-- http://localhost:3000 — 首页面试列表时间线布局
-- http://localhost:3000/greeting — 招呼语生成页面（表单式）
-- http://localhost:3000/questions — 问题记录页面（列表编辑式）
-
-- [ ] **Step 3: 验收标准核对**
-
-- [x] 首页面试列表使用时间线垂直布局
-- [x] /greeting 页面使用表单式左右分栏布局
-- [x] /questions 页面使用列表编辑式左右分栏布局
-- [x] 所有页面无过多留白，紧凑但不拥挤
-- [x] 风格统一：圆角、阴影、边框、颜色系统一致
-- [x] 导航可正常跳转新页面（仅有样式）
-
-- [ ] **Step 4: 最终提交**
-
-```bash
-git add -A
-git commit -m "feat: complete frontend redesign - timeline layout, greeting and questions pages
-
-Modern minimalist style with:
-- Timeline layout for interview list
-- /greeting page with form-style layout
-- /questions page with list-edit layout
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
-```
+| Spec Section | Task |
+|--------------|------|
+| Global styles | Task 1 |
+| Layout | Task 2 |
+| Homepage | Task 6 |
+| InterviewTimeline | Task 3 |
+| InterviewForm | Task 4 |
+| ShareButton/DeleteButton | Task 5 |
+| Interview detail | Task 7 |
+| Edit/New pages | Task 8 |
+| Greeting page | Task 9 |
+| Questions page | Task 10 |
+| Settings page | Task 11 |
 
 ---
 
