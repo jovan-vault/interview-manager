@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 interface Interview {
   date: string
@@ -15,6 +15,8 @@ interface CalendarSidebarProps {
 }
 
 export default function CalendarSidebar({ interviews }: CalendarSidebarProps) {
+  const MAX_UPCOMING_SHOWN = 5
+
   const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date()
     return new Date(now.getFullYear(), now.getMonth(), 1)
@@ -29,7 +31,7 @@ export default function CalendarSidebar({ interviews }: CalendarSidebarProps) {
     return acc
   }, {})
 
-  const getCalendarDays = () => {
+  const calendarDays = useMemo(() => {
     const year = currentMonth.getFullYear()
     const month = currentMonth.getMonth()
     const firstDay = new Date(year, month, 1)
@@ -43,7 +45,7 @@ export default function CalendarSidebar({ interviews }: CalendarSidebarProps) {
       days.push({ date: d, fullDate })
     }
     return days
-  }
+  }, [currentMonth])
 
   const monthLabel = currentMonth.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })
 
@@ -72,7 +74,7 @@ export default function CalendarSidebar({ interviews }: CalendarSidebarProps) {
       </div>
 
       <div className="calendar-grid">
-        {getCalendarDays().map((day, idx) => {
+        {calendarDays.map((day, idx) => {
           if (!day.fullDate) return <div key={`pad-${idx}`} className="calendar-day empty" />
           const count = interviewCountByDate[day.fullDate] || 0
           const isToday = day.fullDate === todayStr
@@ -95,7 +97,7 @@ export default function CalendarSidebar({ interviews }: CalendarSidebarProps) {
           <div className="upcoming-label">即将到来</div>
           {Object.entries(interviewCountByDate)
             .sort(([a], [b]) => a.localeCompare(b))
-            .slice(0, 5)
+            .slice(0, MAX_UPCOMING_SHOWN)
             .map(([date, count]) => {
               const d = new Date(date + 'T00:00:00')
               const label = d.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })
@@ -107,7 +109,6 @@ export default function CalendarSidebar({ interviews }: CalendarSidebarProps) {
                     const params = new URLSearchParams(window.location.search)
                     params.set('scroll', date)
                     window.history.pushState({}, '', `?${params.toString()}`)
-                    document.getElementById(`date-${date}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                   }}
                 >
                   <span className="upcoming-dot" />
