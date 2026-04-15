@@ -2026,7 +2026,7 @@ body {
 .calendar-sidebar-wrapper {
   position: fixed;
   top: 0;
-  right: 40px;
+  right: 80px;
   width: var(--calendar-width, 280px);
   height: 100vh;
   z-index: 40;
