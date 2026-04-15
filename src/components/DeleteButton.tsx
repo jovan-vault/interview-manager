@@ -20,8 +20,8 @@ export default function DeleteButton({ interviewId }: Props) {
 
   return (
     <button onClick={handleDelete} disabled={loading}
-      className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 disabled:opacity-50">
-      {loading ? '删除中...' : '删除'}
+      className="bg-[#f3727f] text-white py-2 px-5 rounded-full hover:opacity-90 disabled:opacity-50">
+      {loading ? '删除中...' : '🗑️ 删除'}
     </button>
   )
 }

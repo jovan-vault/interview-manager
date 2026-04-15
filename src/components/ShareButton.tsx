@@ -16,7 +16,7 @@ export default function ShareButton({ shareToken }: Props) {
 
   return (
     <button onClick={handleCopy}
-      className="bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition flex items-center gap-2">
+      className="bg-[#1f1f1f] text-white py-2 px-5 rounded-full hover:bg-[#252525] transition flex items-center gap-2 border border-[#4d4d4d]">
       {copied ? '✓ 已复制' : '🔗 复制分享链接'}
     </button>
   )
