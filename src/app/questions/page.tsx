@@ -27,9 +27,9 @@ export default function QuestionsPage() {
   const selectedQuestion = mockQuestions.find((q) => q.id === selectedId) || null
 
   return (
-    <main className="max-w-5xl mx-auto p-6">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+    <main className="max-w-5xl mx-auto p-6 bg-[#181818] min-h-screen">
+      <div className="bg-[#181818] rounded-2xl border border-[#4d4d4d] p-6">
+        <h1 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
           <span className="text-2xl">📝</span>
           面试问题记录
         </h1>
