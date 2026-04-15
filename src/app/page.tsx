@@ -1,4 +1,4 @@
-import InterviewCard from '@/components/InterviewCard'
+import InterviewTimeline from '@/components/InterviewTimeline'
 import { prisma } from '@/lib/prisma'
 
 async function getInterviews() {
@@ -39,8 +39,12 @@ export default async function Home() {
             <h2 className="text-lg font-semibold text-gray-700 mb-3">
               {new Date(date).toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' })}
             </h2>
-            {grouped[date].map((interview: any) => (
-              <InterviewCard key={interview.id} interview={interview} />
+            {grouped[date].map((interview: any, index: number) => (
+              <InterviewTimeline
+                key={interview.id}
+                interview={interview}
+                isLast={index === grouped[date].length - 1}
+              />
             ))}
           </div>
         ))
