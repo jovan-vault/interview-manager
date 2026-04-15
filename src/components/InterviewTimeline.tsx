@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 interface Interview {
   id: string
   date: string
@@ -49,8 +51,8 @@ export default function InterviewTimeline({ interview, isLast = false }: Props) 
             )}
           </div>
           <div className="mt-3 flex gap-3">
-            <a href={`/interviews/${interview.id}`} className="text-sm text-[#1ed760] hover:underline">查看详情</a>
-            <a href={`/interviews/${interview.id}/edit`} className="text-sm text-[#b3b3b3] hover:text-white">编辑</a>
+            <Link href={`/interviews/${interview.id}`} className="text-sm text-[#1ed760] hover:underline">查看详情</Link>
+            <Link href={`/interviews/${interview.id}/edit`} className="text-sm text-[#b3b3b3] hover:text-white">编辑</Link>
           </div>
         </div>
       </div>
