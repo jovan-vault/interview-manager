@@ -39,7 +39,7 @@ export default function HomeClient({ interviews }: { interviews: Interview[] }) 
   }, [selectedDate])
 
   const grouped = interviews.reduce((acc: Record<string, Interview[]>, item: Interview) => {
-    const dateKey = item.date.toISOString().split('T')[0]
+    const dateKey = new Date(item.date).toISOString().split('T')[0]
     if (!acc[dateKey]) acc[dateKey] = []
     acc[dateKey].push(item)
     return acc
