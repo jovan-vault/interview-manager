@@ -12,7 +12,7 @@ export default async function Home() {
   const interviews = await getInterviews()
 
   const grouped = interviews.reduce((acc: Record<string, typeof interviews>, item: any) => {
-    const dateKey = item.date.split('T')[0]
+    const dateKey = new Date(item.date).toISOString().split('T')[0]
     if (!acc[dateKey]) acc[dateKey] = []
     acc[dateKey].push(item)
     return acc
