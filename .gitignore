@@ -39,6 +39,12 @@ next-env.d.ts
 # Worktrees
 .worktrees/
 
+# Tools & Docs
+.claude/
+.superpowers/
+docs/
+.kiro/
+
 # OS
 .DS_Store
 Thumbs.db
