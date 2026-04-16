@@ -15,45 +15,182 @@ interface Props {
 }
 
 const statusConfig = {
-  mastered: { label: '已掌握', bg: 'bg-[#1ed760]/20', text: 'text-[#1ed760]' },
-  pending: { label: '待完善', bg: 'bg-[#ffa42b]/20', text: 'text-[#ffa42b]' },
-  'not-reviewed': { label: '未复习', bg: 'bg-[#539df5]/20', text: 'text-[#539df5]' },
+  mastered: {
+    label: '已掌握',
+    bg: 'var(--accent-success-dim)',
+    color: 'var(--accent-success)',
+    icon: (
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    )
+  },
+  pending: {
+    label: '练习中',
+    bg: 'rgba(251, 191, 36, 0.12)',
+    color: 'var(--accent-warning)',
+    icon: (
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+    )
+  },
+  'not-reviewed': {
+    label: '待复习',
+    bg: 'var(--accent-video-dim)',
+    color: 'var(--accent-video)',
+    icon: (
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    )
+  },
 }
 
 export default function QuestionList({ questions, selectedId, onSelect }: Props) {
   return (
-    <div className="space-y-3">
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-sm font-medium text-[#b3b3b3]">共 {questions.length} 个问题</span>
-        <button className="text-[#1ed760] text-sm hover:underline">+ 添加问题</button>
+    <div className="ql-container">
+      <div className="ql-header">
+        <span className="ql-count">共 {questions.length} 个问题</span>
+        <button className="ql-add-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          添加问题
+        </button>
       </div>
 
-      {questions.map((q) => {
-        const status = statusConfig[q.status]
-        const isSelected = q.id === selectedId
+      <div className="ql-list">
+        {questions.map((q) => {
+          const status = statusConfig[q.status]
+          const isSelected = q.id === selectedId
 
-        return (
-          <div
-            key={q.id}
-            onClick={() => onSelect(q.id)}
-            className={`rounded-xl p-4 border cursor-pointer transition-all ${
-              isSelected
-                ? 'bg-[#1ed760]/10 border-2 border-[#1ed760]'
-                : 'bg-[#1f1f1f] border border-[#4d4d4d] hover:border-[#b3b3b3]'
-            }`}
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="font-medium text-white">{q.content}</div>
-                <div className="text-xs text-[#b3b3b3] mt-1">{q.company} · {q.position}</div>
+          return (
+            <div
+              key={q.id}
+              onClick={() => onSelect(q.id)}
+              className={`ql-item ${isSelected ? 'ql-item-selected' : ''}`}
+            >
+              <div className="ql-item-content">
+                <div className="ql-item-question">{q.content}</div>
+                <div className="ql-item-meta">{q.company} · {q.position}</div>
               </div>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${status.bg} ${status.text}`}>
+              <span className="ql-status-badge" style={{ background: status.bg, color: status.color }}>
+                {status.icon}
                 {status.label}
               </span>
             </div>
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
+
+      <style jsx>{`
+        .ql-container {
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-xl);
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .ql-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .ql-count {
+          font-size: 13px;
+          color: var(--text-secondary);
+          font-weight: 500;
+        }
+
+        .ql-add-btn {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 13px;
+          color: var(--accent-primary);
+          font-weight: 600;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          font-family: inherit;
+          padding: 4px 8px;
+          border-radius: 6px;
+          transition: background 0.15s;
+        }
+
+        .ql-add-btn:hover {
+          background: var(--accent-primary-dim);
+        }
+
+        .ql-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .ql-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 14px 16px;
+          background: var(--bg-input);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+
+        .ql-item:hover {
+          border-color: var(--border-hover);
+          background: var(--bg-card-hover);
+        }
+
+        .ql-item-selected {
+          border-color: var(--accent-primary);
+          background: var(--accent-primary-dim);
+        }
+
+        .ql-item-content {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .ql-item-question {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--text-primary);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .ql-item-meta {
+          font-size: 12px;
+          color: var(--text-tertiary);
+          margin-top: 2px;
+        }
+
+        .ql-status-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 10px;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 600;
+          flex-shrink: 0;
+        }
+      `}</style>
     </div>
   )
 }

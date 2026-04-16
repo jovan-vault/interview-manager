@@ -8,13 +8,65 @@ interface Interview {
   company: string
   position: string
   interviewType: 'VIDEO' | 'ONSITE'
+  id?: string
 }
 
 interface CalendarSidebarProps {
   interviews: Interview[]
 }
 
+function getNextInterview(interviews: Interview[]): Interview | null {
+  const now = new Date()
+  const todayStr = now.toISOString().split('T')[0]
+  const currentTime = now.getHours() * 60 + now.getMinutes()
+
+  // 优先找未来的面试
+  const upcoming = interviews.filter(i => {
+    if (i.date > todayStr) return true
+    if (i.date === todayStr) {
+      const [h, m] = i.startTime.split(':').map(Number)
+      return h * 60 + m > currentTime
+    }
+    return false
+  })
+
+  if (upcoming.length > 0) {
+    return upcoming.sort((a, b) => {
+      if (a.date !== b.date) return a.date.localeCompare(b.date)
+      return a.startTime.localeCompare(b.startTime)
+    })[0]
+  }
+
+  // 如果没有未来的面试，显示今天最近的一场（即使已过期）
+  const todayInterviews = interviews.filter(i => i.date === todayStr)
+  if (todayInterviews.length > 0) {
+    return todayInterviews.sort((a, b) => b.startTime.localeCompare(a.startTime))[0]
+  }
+
+  return null
+}
+
+function getCountdown(interview: Interview): { days: number; hours: number; label: string } {
+  const now = new Date()
+  const target = new Date(`${interview.date}T${interview.startTime}:00`)
+  const diffMs = target.getTime() - now.getTime()
+
+  if (diffMs <= 0) return { days: 0, hours: 0, label: '即将开始' }
+
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const days = Math.floor(diffHours / 24)
+  const hours = diffHours % 24
+
+  let label = ''
+  if (days > 0) label = `${days} 天后`
+  else if (hours > 0) label = `${hours} 小时后`
+  else label = '即将开始'
+
+  return { days, hours, label }
+}
+
 export default function CalendarSidebar({ interviews }: CalendarSidebarProps) {
+  const nextInterview = useMemo(() => getNextInterview(interviews), [interviews])
   const MAX_UPCOMING_SHOWN = 5
 
   const [currentMonth, setCurrentMonth] = useState(() => {
@@ -78,11 +130,12 @@ export default function CalendarSidebar({ interviews }: CalendarSidebarProps) {
           if (!day.fullDate) return <div key={`pad-${idx}`} className="calendar-day empty" />
           const count = interviewCountByDate[day.fullDate] || 0
           const isToday = day.fullDate === todayStr
+          const isPast = day.fullDate < todayStr
           const hasInterviews = count > 0
           return (
             <div
               key={day.fullDate}
-              className={`calendar-day ${hasInterviews ? 'has-interviews' : ''} ${isToday ? 'today' : ''}`}
+              className={`calendar-day ${hasInterviews ? 'has-interviews' : ''} ${isToday ? 'today' : ''} ${isPast ? 'past' : ''}`}
               title={hasInterviews ? `${count} 场面试` : ''}
             >
               <span className="day-number">{day.date}</span>
@@ -117,6 +170,24 @@ export default function CalendarSidebar({ interviews }: CalendarSidebarProps) {
                 </div>
               )
             })}
+        </div>
+      )}
+
+      {nextInterview && (
+        <div className="countdown-card">
+          <div className="countdown-header">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12,6 12,12 16,14"/>
+            </svg>
+            <span>下一个面试</span>
+          </div>
+          <div className="countdown-datetime">
+            {new Date(nextInterview.date + 'T00:00:00').toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })} {nextInterview.startTime}
+          </div>
+          <div className="countdown-company">{nextInterview.company}</div>
+          <div className="countdown-position">{nextInterview.position}</div>
+          <div className="countdown-timer">{getCountdown(nextInterview).label}</div>
         </div>
       )}
     </aside>

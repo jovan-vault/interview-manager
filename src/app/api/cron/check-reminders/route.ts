@@ -6,10 +6,9 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function GET(request: Request) {
-  // Vercel Cron 发出的请求 User-Agent 是 vercel-cron/1.0
-  // 只有来自 Vercel Cron 的请求才能访问此 endpoint
-  const userAgent = request.headers.get('user-agent')
-  if (!userAgent?.includes('vercel-cron')) {
+  // 验证 Bearer token，由 cron-job.org 或其他外部 cron 服务在请求头中携带
+  const authHeader = request.headers.get('authorization')
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
