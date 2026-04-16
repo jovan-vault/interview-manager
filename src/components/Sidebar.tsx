@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import React from 'react'
 
-const navItems = [
+const navItems: { href: string; label: string; icon: React.ReactElement; highlight?: boolean }[] = [
   {
     href: '/',
     label: '面试日程',
